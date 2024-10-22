@@ -1,5 +1,5 @@
 <?php 
-    include "connection.php";
+    include "requests.php";
 ?>
 
 <!DOCTYPE html>
