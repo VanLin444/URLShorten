@@ -1,3 +1,7 @@
+<?php 
+    include "connection.php";
+?>
+
 <!DOCTYPE html>
 <html lang = "ru">
 <head>
@@ -12,10 +16,10 @@
             </h1>
         </div>
         <div class = "row">
-            <form action = "">
+            <form action = "" method="POST">
                 <div class="input-group mb-3">
                     <input type="text" name = "url_shorten" class="form-control" placeholder="Вставьте ссылку"  aria-describedby="button-addon2">
-                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">Сократить</button>
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Сократить</button>
                 </div>
             </form>
         </div>
