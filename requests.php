@@ -1,17 +1,16 @@
 <?php
     include 'connection.php';
 
-    $request = trim($_POST['url_shorten']);
-    $request = mysqli_real_escape_string($conn, $request);
+    $request = trim($_GET['url_shorten']); // Удаляем пробелы с начала и конца строки
+    $request = mysqli_real_escape_string($conn, $request); // Проверка на инъекцию
 
-    if(!empty($request)){
-
+    if(isset($_GET['url_shorten'])){
         $search_bool = false;
         $token = '';
 
         while (!$search_bool){
             $token = token_gen();
-            $sel = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` ='".$token."'");
+            $sel = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` = '".$token."'");
             
             if(!mysqli_num_rows($sel)){
                 $search_bool = true;
@@ -21,12 +20,30 @@
 
         
         if($search_bool){
-            $ins = mysqli_query($conn, "INSERT INTO `links` (`link`,`token`) VALUES ('".$request."', '".token_gen()."')");
+            $ins = mysqli_query($conn, "INSERT INTO `links` (`link`,`token`) VALUES ('".$request."', '".$token."')");
     
             if ($ins){
-                echo "Добавлено";
+                $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $token;
+                //echo "Добавлено";
             } else {
                 echo "Ошибка";
+            }
+        } else {
+            echo "Не добавлена";
+        }
+    } else {
+        $uri = $_SERVER['REQUEST_URI'];
+        $token = substr($uri, 1);
+
+        if(iconv_strlen($token)){
+            $check = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` ='".$token."'");
+            
+            if(!mysqli_num_rows($check)){
+                $row = mysqli_fetch_assoc($check);
+
+                header("Location: " . $row['link']);
+            } else {
+                die("Ошибка токена");
             }
         }
     }
