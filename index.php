@@ -12,6 +12,9 @@
             text-decoration: none;
             color: black;
         }
+        a:hover{
+            color:brown;
+        }
     </style>
 </head>
 <body>
@@ -24,7 +27,7 @@
             </a>
         </div>
         <div class = "row">
-            <form action = "<?= htmlspecialchars($_SERVER['PHP_SELF'])?>" method="GET">
+            <form action = "" method="GET">
                 <div class="input-group mb-3">
                     <input type="text" value="<?=$_GET['url_shorten'];?>" name="url_shorten" class="form-control" placeholder="Вставьте ссылку"  aria-describedby="button-addon2">
                     <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Сократить</button>
@@ -32,10 +35,5 @@
             </form>
         </div>
     </div>
-
-
-
-
-
 </body>
 </html>

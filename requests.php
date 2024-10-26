@@ -1,35 +1,35 @@
 <?php
+    ob_start();
     include 'connection.php';
-
+    
     $request = trim($_GET['url_shorten']); // Удаляем пробелы с начала и конца строки
     $request = mysqli_real_escape_string($conn, $request); // Проверка на инъекцию
-
     if(isset($_GET['url_shorten'])){
         $search_bool = false;
         $token = '';
 
         while (!$search_bool){
             $token = token_gen();
-            $sel = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` = '".$token."'");
+            $sel = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` = '".$token."'"); // Проверка есть ли такой токен в БД
             
             if(!mysqli_num_rows($sel)){
                 $search_bool = true;
+                break;
             }
     
         }
 
         
         if($search_bool){
-            $ins = mysqli_query($conn, "INSERT INTO `links` (`link`,`token`) VALUES ('".$request."', '".$token."')");
+            $ins = mysqli_query($conn, "INSERT INTO `links` (`link`,`token`) VALUES ('".$request."', '".$token."')"); // Добавление ссылки в БД
     
             if ($ins){
                 $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $token;
-                //echo "Добавлено";
             } else {
-                echo "Ошибка";
+                //echo "Ошибка";
             }
         } else {
-            echo "Не добавлена";
+            //echo "Не добавлена";
         }
     } else {
         $uri = $_SERVER['REQUEST_URI'];
@@ -37,10 +37,8 @@
 
         if(iconv_strlen($token)){
             $check = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` ='".$token."'");
-            
             if(!mysqli_num_rows($check)){
                 $row = mysqli_fetch_assoc($check);
-
                 header("Location: " . $row['link']);
             } else {
                 die("Ошибка токена");
