@@ -1,6 +1,4 @@
-<?php 
-    include "requests.php";
-?>
+<?php include "requests.php";?>
 
 <!DOCTYPE html>
 <html lang = "ru">
@@ -11,9 +9,6 @@
         a{
             text-decoration: none;
             color: black;
-        }
-        a:hover{
-            color:brown;
         }
     </style>
 </head>
