@@ -8,7 +8,7 @@
     $request = mysqli_real_escape_string($conn, $request); // Проверка на инъекцию
     // Ищем ссылку в БД
     $urlCheck = mysqli_query($conn, "SELECT * FROM `links` WHERE `link` = '".$request."'"); 
-    // Проверяем сыществование get-запроса и указанной ссылки в БД
+    // Проверяем существование get-запроса и указанной ссылки в БД
     if(isset($_GET['url_shorten'])){
         $search_bool = false;
         $token = '';
