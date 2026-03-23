@@ -15,7 +15,7 @@
 <body>
     <div class = "container text-center">
         <div class = "row" style = "margin-top: 20%;">
-            <a href="http://localhost/URLShorten/">
+            <a href="http://localhost:8888/URLShorten/index.php">
                 <h1>
                     URL SHORTEN
                 </h1>

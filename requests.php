@@ -1,66 +1,61 @@
 <?php
-    // Включаем буферизацию вывода, чтобы вывод из скрипта не отправлялся, а сохранялся во внутреннем буфере. 
-    // Это нужно чтобы Local - корректно работал и перенаправлял на нужную страницу.
-    ob_start(); 
-    include 'connection.php'; // Подключаемся к БД
+ob_start();
+include 'connection.php';
+
+$request = isset($_GET['url_shorten']) ? trim($_GET['url_shorten']) : '';
+$request = mysqli_real_escape_string($conn, $request);
+
+if (!empty($request)) {
+    // Проверка есть ли уже такая ссылка
+    $urlCheck = mysqli_query($conn, "SELECT * FROM `links` WHERE `link` = '$request'");
     
-    $request = trim($_GET['url_shorten']); // Удаляем пробелы с начала и конца строки
-    $request = mysqli_real_escape_string($conn, $request); // Проверка на инъекцию
-    // Ищем ссылку в БД
-    $urlCheck = mysqli_query($conn, "SELECT * FROM `links` WHERE `link` = '".$request."'"); 
-    // Проверяем существование get-запроса и указанной ссылки в БД
-    if(isset($_GET['url_shorten'])){
-        $search_bool = false;
-        $token = '';
-        // Проверяем есть ли такой токен в БД.
-        // Если да, то генерируем новый пока он не станет уникальным.
-        while (!$search_bool){
-            $token = token_gen();
-            $sel = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` = '".$token."'"); 
-            if(!mysqli_num_rows($sel)){
-                $search_bool = true;
-            }
-        }
-        
-        if($search_bool){
-            // Если нет такого токена, то добавляем в БД
-            $add = mysqli_query($conn, "INSERT INTO `links` (`link`,`token`) VALUES ('".$request."', '".$token."')"); // Добавление ссылки и токена в БД
-            if ($add){
-                $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $token; // Запись в get-запрос новой ссылки, которая выведется в поле ввода
-            }
-        }
-
+    if (mysqli_num_rows($urlCheck) > 0) {
+        // Если ссылка уже есть, просто берётся её токен, а не создаётся новый
+        $row = mysqli_fetch_assoc($urlCheck);
+        $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $row['token'];
     } else {
-        // Хватаем введённый адрес пользователя с токеном и перенаправляем на адресс указанный в БД соответствующий токену
-        // Получаем значение из адрессной строки
-        $uri = $_SERVER['REQUEST_URI'];
-        $token = substr($uri, 1);
-        // Проверяем есть ли такой токен и перенаправляем на его адрес
-        if(iconv_strlen($token)){
-            $check = mysqli_query($conn, "SELECT * FROM `links` WHERE `token` ='".$token."'");
-            print_r($check);
-            print_r(mysqli_num_rows($check));
-            if(mysqli_num_rows($check) || mysqli_num_rows($check) == 0){
-                $row = mysqli_fetch_assoc($check);
-                header("Location: " . $row['link']); // Используем для сохранности фун-ю ob_start(), чтобы header работал корректно!
-            } else {
-                die("Ошибка токена");
+        // Если ссылки нет, генерируется уникальный токен
+        $token = '';
+        $is_unique = false;
+        while (!$is_unique) {
+            $token = token_gen();
+            $checkToken = mysqli_query($conn, "SELECT id FROM `links` WHERE `token` = '$token'");
+            if (mysqli_num_rows($checkToken) == 0) {
+                $is_unique = true;
             }
         }
-    }
 
-    // Функция для генерации уникального токена
-    function token_gen($min = 4, $max = 10 ){
-        $chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
-        $new_chars = str_split($chars);
-
-        $token = '';
-        $rand_end = mt_rand($min,$max);
-
-        for($i = 0; $i < $rand_end; $i++){
-            $token .= $new_chars[mt_rand(0, sizeof($new_chars)-1)];
+        // Сохранение новой ссылки
+        $add = mysqli_query($conn, "INSERT INTO `links` (`link`, `token`) VALUES ('$request', '$token')");
+        if ($add) {
+            $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $token;
         }
-
-        return $token;
     }
+} else {
+    // Блок перенаправления по токену
+    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $token = trim($uri, '/');
+
+    if (!empty($token)) {
+        $check = mysqli_query($conn, "SELECT `link` FROM `links` WHERE `token` = '$token'");
+        if (mysqli_num_rows($check) > 0) {
+            $row = mysqli_fetch_assoc($check);
+            header("Location: " . $row['link']);
+            exit; // Закрываем header
+        }
+    }
+}
+
+// Функция для генерации токена
+function token_gen($min = 4, $max = 10) {
+    $chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    $token = '';
+    $length = mt_rand($min, $max);
+    for ($i = 0; $i < $length; $i++) {
+        $token .= $chars[mt_rand(0, strlen($chars) - 1)];
+    }
+    return $token;
+}
+
+ob_end_flush();
 ?>
