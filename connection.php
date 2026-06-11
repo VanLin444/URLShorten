@@ -10,6 +10,6 @@
         $pdo = new PDO($dsn, $dbUsername, $dbPassword);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
-        die('Database Error');
+        die('Database Error: ' . $e->getMessage());
     }
 ?>

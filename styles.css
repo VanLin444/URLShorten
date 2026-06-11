@@ -6,3 +6,8 @@ a {
 .title {
     margin-top: 20%;
 }
+
+.alert {
+    width: 60%;
+    margin: auto;
+}
