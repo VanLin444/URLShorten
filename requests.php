@@ -17,7 +17,7 @@ if (!empty($request)) {
 
         if ($row) {
             // Если ссылка уже есть, просто берётся её токен, а не создаётся новый
-            $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $row['token'];
+            $_GET['url_shorten'] = $_SERVER['HTTP_HOST'] . '/' . $row['token'];
         } else {
             // Если ссылки нет, генерируется уникальный токен
             $token = '';
@@ -35,7 +35,7 @@ if (!empty($request)) {
             $stmt = $pdo->prepare("INSERT INTO links (link, token) VALUES (?, ?)");
             $add = $stmt->execute([$request, $token]);
             if ($add) {
-                $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $token;
+                $_GET['url_shorten'] = $_SERVER['HTTP_HOST'] . '/' . $token;
             }
         }
     }
