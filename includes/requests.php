@@ -1,6 +1,6 @@
 <?php
 ob_start();
-require_once __DIR__ . '/connection.php';
+require_once __DIR__ . "/connection.php";
 require_once __DIR__ . '/token.php';
 
 $error = null;
@@ -35,14 +35,15 @@ if (!empty($request)) {
             $stmt = $pdo->prepare("INSERT INTO links (link, token) VALUES (?, ?)");
             $add = $stmt->execute([$request, $token]);
             if ($add) {
-                $_GET['url_shorten'] = $_SERVER['SERVER_NAME'] . '/' . $token;
+                $_GET['url_shorten'] = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) . '/' . $token;
             }
         }
     }
 } else {
     // Блок перенаправления по токену
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $token = trim($uri, '/');
+    $segments = explode('/', trim($uri, '/'));
+    $token = end($segments);
     // Поиск ссылки по токену
     if (!empty($token)) {
         $stmt = $pdo->prepare("SELECT link FROM links WHERE token = ?");
