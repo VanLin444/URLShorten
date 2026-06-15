@@ -1,7 +1,6 @@
 RewriteEngine On
-Options +FollowSymlinks
-RewriteBase /
 
-RewriteCond   %{REQUEST_FILENAME}       !-d
-RewriteCond   %{REQUEST_FILENAME}       !-f
-RewriteRule   ^(.*) index.php?%{QUERY_STRING}
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^(.*)$ index.php [L,QSA]
