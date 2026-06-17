@@ -1,5 +1,4 @@
 <?php
-ob_start();
 require_once __DIR__ . '/connection.php';
 require_once __DIR__ . '/token.php';
 
@@ -64,5 +63,3 @@ function validateUrl(string $url): bool
     $scheme = parse_url($url, PHP_URL_SCHEME);
     return in_array($scheme, ['http', 'https']);
 }
-
-ob_end_flush();
